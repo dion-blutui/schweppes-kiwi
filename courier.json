@@ -1,0 +1,5 @@
+{
+  "$schema": "https://dev.blutui.com/schemas/v1/schema.json",
+  "cassette": "default",
+  "handle": "schweppes"
+}

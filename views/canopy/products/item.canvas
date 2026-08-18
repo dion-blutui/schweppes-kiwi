@@ -9,6 +9,9 @@
           "help": "Must match one of the category tabs on the showcase.",
           "default": "Sparkling Water Beverages" },
         { "name": "image", "type": "file", "label": "Pack shot", "accept": "image/*", "tab": "Content" },
+        { "name": "link", "type": "url", "label": "Product page", "tab": "Content",
+          "help": "The pack shot and product name link here.",
+          "default": { "url": "/products/kiwi-lime", "text": "Antipodean KIWI & LIME", "target": "_self" } },
         { "name": "features", "type": "text", "label": "Feature line", "tab": "Content",
           "default": "CAFFEINE FREE" },
         { "name": "nutrition", "type": "textarea", "label": "Nutrition summary", "tab": "Content",
@@ -34,16 +37,36 @@
   data-product-category="{{ settings.category }}"
 >
   <div class="flex justify-center lg:justify-end">
-    <img
-      src="{{ pack_shot | image_url({ width: 700, format: 'webp' }) }}"
-      alt="{{ settings.name }}"
-      class="h-[340px] w-auto object-contain lg:h-[516px]"
-    />
+    {% if settings.link.url %}
+      <a
+        href="{{ settings.link.url }}"
+        target="{{ settings.link.target }}"
+        class="block transition-transform duration-200 hover:scale-[1.03] focus-visible:scale-[1.03]"
+      >
+        <img
+          src="{{ pack_shot | image_url({ width: 700, format: 'webp' }) }}"
+          alt="{{ settings.name }}"
+          class="h-[340px] w-auto object-contain lg:h-[516px]"
+        />
+      </a>
+    {% else %}
+      <img
+        src="{{ pack_shot | image_url({ width: 700, format: 'webp' }) }}"
+        alt="{{ settings.name }}"
+        class="h-[340px] w-auto object-contain lg:h-[516px]"
+      />
+    {% endif %}
   </div>
 
   <div class="max-w-[560px]">
     <h3 class="text-[26px] font-bold leading-[0.95] text-heritage lg:text-[32px]">
-      {{ settings.name }}
+      {% if settings.link.url %}
+        <a href="{{ settings.link.url }}" target="{{ settings.link.target }}" class="underline-offset-4 hover:underline">
+          {{ settings.name }}
+        </a>
+      {% else %}
+        {{ settings.name }}
+      {% endif %}
     </h3>
 
     {% if settings.show_share %}

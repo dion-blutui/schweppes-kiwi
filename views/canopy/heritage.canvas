@@ -3,6 +3,9 @@
     "title": "Heritage intro",
     "name": "heritage",
     "settings": [
+        { "name": "anchor", "type": "text", "label": "Anchor id", "tab": "Style",
+          "help": "Used for in-page links, e.g. /#heritage. Lowercase, no spaces.",
+          "default": "heritage" },
         { "name": "display_heading", "type": "text", "label": "Display heading", "tab": "Content",
           "default": "Our Sparkling" },
         { "name": "heading", "type": "heading", "label": "Heading", "tab": "Content",
@@ -20,7 +23,8 @@
 {% canopy template %}
 {% set portrait = settings.image.path|default(asset('images/jacob-schweppe-green.jpg')) %}
 
-<section class="relative isolate overflow-hidden bg-heritage">
+<section
+  id="{{ settings.anchor|lower|replace({' ': '-'}) }}" class="relative isolate overflow-hidden bg-heritage">
   <img
     src="{{ portrait | image_url({ width: 1120, format: 'webp' }) }}"
     alt=""

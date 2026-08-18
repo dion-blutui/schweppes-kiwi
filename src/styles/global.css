@@ -20,6 +20,18 @@
   --color-olive: #4e6701;
 }
 
+/* In-page navigation ------------------------------------------------------ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 /* Section rhythm ---------------------------------------------------------- */
 
 .shell {
@@ -48,18 +60,6 @@
   transform: skewX(12deg);
 }
 
-/* Circular badge lockup --------------------------------------------------- */
-
-.badge-spin {
-  animation: badge-rotate 22s linear infinite;
-}
-
-@keyframes badge-rotate {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .scroll-cue {
   animation: scroll-bob 2.2s ease-in-out infinite;
 }
@@ -75,7 +75,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .badge-spin,
   .scroll-cue {
     animation: none;
   }

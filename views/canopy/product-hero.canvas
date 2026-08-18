@@ -11,10 +11,6 @@
         { "name": "can", "type": "file", "label": "Can image", "accept": "image/*", "tab": "Media",
           "description": "Shown three times as an overlapping pack shot on large screens." },
         { "name": "backdrop", "type": "file", "label": "Backdrop image", "accept": "image/*", "tab": "Media" },
-        { "name": "show_badge", "type": "checkbox", "label": "Show rotating badge", "tab": "Style", "default": true },
-        { "name": "badge_text", "type": "text", "label": "Badge text", "tab": "Style",
-          "help": "Repeats around the circle, so end it with a separator.",
-          "default": "ZERO CARBS. MAX TASTE •" },
         { "name": "show_scroll_cue", "type": "checkbox", "label": "Show scroll cue", "tab": "Style", "default": true }
     ]
 }
@@ -63,18 +59,6 @@
     </div>
   </div>
 
-  {% if settings.show_badge and settings.badge_text %}
-    <div class="absolute right-6 top-10 z-10 h-[96px] w-[96px] lg:right-[6%] lg:top-[30%] lg:h-[134px] lg:w-[134px]">
-      <svg viewBox="0 0 134 134" class="badge-spin h-full w-full" role="img" aria-label="{{ settings.badge_text }}">
-        <defs>
-          <path id="product-hero-badge-arc" fill="none" d="M67,67 m-52,0 a52,52 0 1,1 104,0 a52,52 0 1,1 -104,0" />
-        </defs>
-        <text fill="#ffffff" font-size="15" font-weight="600" letter-spacing="2.6">
-          <textPath href="#product-hero-badge-arc" startOffset="0">{{ settings.badge_text }}</textPath>
-        </text>
-      </svg>
-    </div>
-  {% endif %}
 
   {% if settings.show_scroll_cue %}
     <div class="absolute inset-x-0 bottom-5 flex justify-center" aria-hidden="true">

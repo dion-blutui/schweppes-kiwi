@@ -3,6 +3,9 @@
     "title": "Recipes feature",
     "name": "recipes",
     "settings": [
+        { "name": "anchor", "type": "text", "label": "Anchor id", "tab": "Style",
+          "help": "Used for in-page links, e.g. /#recipes. Lowercase, no spaces.",
+          "default": "recipes" },
         { "name": "display_heading", "type": "text", "label": "Display heading", "tab": "Content",
           "default": "Sparkling" },
         { "name": "heading", "type": "heading", "label": "Heading", "tab": "Content",
@@ -22,7 +25,8 @@
 {% set drink = settings.image.path|default(asset('images/home-buzzer.png')) %}
 {% set background = settings.background.path|default(asset('images/bg-home-recipes.jpg')) %}
 
-<section class="relative isolate overflow-hidden bg-plum">
+<section
+  id="{{ settings.anchor|lower|replace({' ': '-'}) }}" class="relative isolate overflow-hidden bg-plum">
   <img
     src="{{ background | image_url({ width: 1600, format: 'webp' }) }}"
     alt=""

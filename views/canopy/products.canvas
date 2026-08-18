@@ -3,6 +3,9 @@
     "title": "Product showcase",
     "name": "products",
     "settings": [
+        { "name": "anchor", "type": "text", "label": "Anchor id", "tab": "Style",
+          "help": "Used for in-page links, e.g. /#products. Lowercase, no spaces.",
+          "default": "products" },
         { "name": "categories", "type": "list", "label": "Category tabs",
           "help": "Each tab filters the products below by their Category field.",
           "description": "Leave empty to hide the tab bar and show every product.",
@@ -18,7 +21,8 @@
 {% canopy template %}
 {% set product_items = canopy.childList() %}
 
-<section class="bg-white py-12 lg:py-[67px]" data-products>
+<section
+  id="{{ settings.anchor|lower|replace({' ': '-'}) }}" class="bg-white py-12 lg:py-[67px]" data-products>
   {% if settings.categories is not empty %}
     <div class="shell">
       <div class="mx-auto max-w-[950px] overflow-x-auto">

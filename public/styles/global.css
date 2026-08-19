@@ -482,6 +482,10 @@
     isolation: isolate;
   }
 
+  .-z-10 {
+    z-index: calc(10 * -1);
+  }
+
   .z-10 {
     z-index: 10;
   }
@@ -696,6 +700,10 @@
 
   .h-\[110px\] {
     height: 110px;
+  }
+
+  .h-\[120px\] {
+    height: 120px;
   }
 
   .h-\[190px\] {
@@ -1809,6 +1817,10 @@
       display: none;
     }
 
+    .lg\:h-2\/3 {
+      height: 66.6667%;
+    }
+
     .lg\:h-16 {
       height: calc(var(--spacing) * 16);
     }
@@ -1835,6 +1847,10 @@
 
     .lg\:h-\[220px\] {
       height: 220px;
+    }
+
+    .lg\:h-\[240px\] {
+      height: 240px;
     }
 
     .lg\:h-\[350px\] {

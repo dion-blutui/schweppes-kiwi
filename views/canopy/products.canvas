@@ -32,8 +32,15 @@
 #}
 {% set anchor = settings.anchor|default('products')|lower|replace({' ': '-'}) %}
 {% set products = settings.source ? settings.source.entries|sort((a, b) => a.order <=> b.order) : [] %}
+{% set band_image = asset('images/bubbles-top-bg.png') %}
 
-<section id="{{ anchor }}" class="bg-white py-12 lg:overflow-x-clip lg:py-[67px]" data-products data-products-anchor="{{ anchor }}">
+<section id="{{ anchor }}" class="relative isolate bg-white py-12 lg:overflow-x-clip lg:py-[67px]" data-products data-products-anchor="{{ anchor }}">
+  <img
+    src="{{ band_image | image_url({ width: 1600, format: 'webp' }) }}"
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[110px] w-full object-cover lg:h-2/3"
+  />
   {% if settings.categories is not empty %}
     <div class="shell">
       <div class="relative mx-auto max-w-[950px] max-lg:z-50">

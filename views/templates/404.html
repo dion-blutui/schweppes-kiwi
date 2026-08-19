@@ -1,17 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% extends 'templates/default.html' %}
 
-    <title>404 - Page Not Found</title>
-  </head>
-  <body>
-    <div>
-      <div>
-        <h1>(404) Page Not Found</h1>
-        <p>We couldn't find the page you were looking for.</p>
+{% block title %}Page not found — Schweppes{% endblock %}
+
+{% block body %}
+  <section class="relative isolate overflow-hidden bg-olive">
+    <img
+      src="{{ asset('images/bubbles-top-bg.png') | image_url({ width: 1600, format: 'webp' }) }}"
+      alt=""
+      aria-hidden="true"
+      class="absolute inset-x-0 top-0 h-[110px] w-full object-cover lg:h-[220px]"
+    />
+
+    <div class="shell relative flex flex-col items-center gap-10 py-20 text-center lg:flex-row lg:gap-16 lg:py-[140px] lg:text-left">
+      <img
+        src="{{ asset('images/kiwi-lime-can.png') | image_url({ width: 700, format: 'webp' }) }}"
+        alt=""
+        aria-hidden="true"
+        class="h-[220px] w-auto rotate-[8deg] object-contain lg:h-[400px]"
+      />
+
+      <div class="max-w-[560px]">
+        <p class="font-display text-[72px] font-bold uppercase leading-[0.9] tracking-[0.5px] text-off-white sm:text-[96px] lg:text-[140px]">
+          404
+        </p>
+
+        <h1 class="mt-[10px] text-[24px] font-semibold uppercase leading-tight text-white lg:text-[32px]">
+          This page has gone flat.
+        </h1>
+
+        <p class="mt-[14px] text-[17px] font-light leading-snug tracking-[0.5px] text-white lg:text-[20px]">
+          The page you're looking for doesn't exist or has moved. Let's get you back to something refreshing.
+        </p>
+
+        <a
+          href="/"
+          class="pill-cta mt-[26px] inline-block bg-gold px-8 py-3 hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+        >
+          <span class="text-[15px] font-bold italic uppercase tracking-[1px] text-gold-ink">
+            Back to home
+          </span>
+        </a>
       </div>
     </div>
-  </body>
-</html>
+  </section>
+{% endblock %}

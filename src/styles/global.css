@@ -49,12 +49,67 @@ html {
   }
 }
 
+/* Brand-consistent selection and keyboard focus --------------------------- */
+
+::selection {
+  background-color: var(--color-heritage);
+  color: var(--color-off-white);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-heritage);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Slim, on-brand scrollbar for the strips that scroll horizontally on
+   smaller screens (product tabs, the product showcase, nutrition tables). */
+
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-silver) transparent;
+}
+
+.scroll-thin::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb {
+  background-color: var(--color-silver);
+  border-radius: 999px;
+}
+
+/* Scrolls that carry their own affordance — dots, a peeking next item — and so
+   have no need of a visible bar. */
+
+.scroll-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scroll-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* The angled "Learn more" pill from the design ---------------------------- */
 
 .pill-cta {
   display: inline-block;
   transform: skewX(-12deg);
   border-radius: 4px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  transition:
+    box-shadow 200ms ease,
+    translate 200ms ease;
+}
+
+.pill-cta:hover,
+.pill-cta:focus-visible {
+  box-shadow: 0 12px 24px -10px rgb(0 0 0 / 0.35);
 }
 
 .pill-cta > span {

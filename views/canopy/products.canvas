@@ -36,17 +36,44 @@
 <section id="{{ anchor }}" class="bg-white py-12 lg:overflow-x-clip lg:py-[67px]" data-products data-products-anchor="{{ anchor }}">
   {% if settings.categories is not empty %}
     <div class="shell">
-      <div class="mx-auto max-w-[950px] overflow-x-auto">
+      <div class="relative mx-auto max-w-[950px] max-lg:z-50">
+        {# Below lg the tab bar collapses into a filter dropdown. #}
+        <button
+          type="button"
+          class="flex w-full cursor-pointer items-center gap-4 rounded-full bg-heritage px-[25px] py-4 text-white lg:hidden"
+          data-product-filter
+          aria-expanded="false"
+        >
+          <span class="text-[15px] font-semibold uppercase leading-none tracking-[0.5px]">Filter</span>
+          <span class="text-[15px] italic uppercase leading-none tracking-[0.5px] opacity-90" data-product-filter-label>
+            {{ settings.categories|first }}
+          </span>
+          <svg
+            viewBox="0 0 24 24"
+            class="ml-auto h-5 w-5 transition-transform duration-200"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            data-product-filter-chevron
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span class="sr-only">Choose a product category</span>
+        </button>
+
         <div
-          class="flex min-w-max items-center justify-between gap-8 rounded-full bg-heritage px-[25px] py-5 lg:h-16 lg:py-0 mb-24"
+          class="mb-40 flex gap-8 bg-heritage px-[25px] max-lg:absolute max-lg:inset-x-0 max-lg:top-full max-lg:z-50 max-lg:mb-0 max-lg:mt-2 max-lg:flex-col max-lg:gap-5 max-lg:rounded-3xl max-lg:py-6 max-lg:shadow-lg max-lg:data-[open=false]:hidden lg:h-16 lg:items-center lg:justify-between lg:rounded-full lg:py-0"
           role="tablist"
           aria-label="Product categories"
+          data-product-tablist
+          data-open="false"
         >
           {% for category in settings.categories %}
             <button
               type="button"
               role="tab"
-              class="shrink-0 cursor-pointer whitespace-nowrap text-[15px] font-semibold uppercase leading-tight tracking-[0.5px] text-white opacity-70 transition-opacity aria-selected:opacity-100 hover:opacity-100 lg:text-[20px]"
+              class="shrink-0 cursor-pointer whitespace-nowrap text-left text-[15px] font-semibold uppercase leading-tight tracking-[0.5px] text-white opacity-70 transition-opacity aria-selected:opacity-100 hover:opacity-100 lg:text-center lg:text-[20px]"
               data-product-tab="{{ category }}"
               aria-selected="{{ loop.first ? 'true' : 'false' }}"
             >
@@ -58,10 +85,10 @@
     </div>
   {% endif %}
 
-  <div class="relative mt-10 lg:mt-[92px]" data-products-stage>
+  <div class="relative mt-10 lg:mt-[120px]" data-products-stage>
     {# Below lg the strip scrolls; from lg up it must not clip the panels, so the
        section handles the horizontal overflow instead. #}
-    <div class="overflow-x-auto pb-4 lg:overflow-visible lg:pb-0" data-products-viewport>
+    <div class="scroll-none overflow-x-auto pb-4 lg:overflow-visible lg:pb-0" data-products-viewport>
       <div
         class="relative flex min-w-max items-end justify-start px-6 transition-transform duration-300 ease-out lg:min-w-0 lg:justify-center lg:px-0 lg:will-change-transform"
         data-products-track
@@ -106,7 +133,7 @@
                   src="{{ pack_shot | image_url({ width: 700, format: 'webp' }) }}"
                   alt="{{ product.name }}"
                   class="w-auto origin-bottom object-contain transition-transform duration-300 ease-out
-                    {% if is_bottle %}h-[230px] lg:h-[440px] lg:data-[open=true]:scale-[1.15]{% else %}h-[190px] lg:h-[350px] lg:data-[open=true]:scale-[1.45]{% endif %}"
+                    {% if is_bottle %}h-[223px] lg:h-[412px] lg:data-[open=true]:scale-[1.22]{% else %}h-[190px] lg:h-[350px] lg:data-[open=true]:scale-[1.45]{% endif %}"
                   data-product-image
                   data-open="false"
                   loading="lazy"
@@ -126,7 +153,7 @@
             {# A bottom sheet on small screens; from lg up it sits beside its own pack shot. #}
             <div
               id="{{ anchor }}-{{ slug }}"
-              class="fixed inset-x-3 bottom-3 z-50 max-h-[75vh] overflow-y-auto bg-plum-mist px-5 py-6 shadow-xl lg:absolute lg:inset-x-auto lg:bottom-[-110px] lg:left-1/2 lg:top-auto lg:z-0 lg:max-h-none lg:w-[760px] lg:max-w-[calc(100vw-2rem)] lg:-translate-x-[20px] lg:overflow-visible lg:py-[50px] lg:pl-[145px] lg:pr-[60px] lg:shadow-none"
+              class="fixed inset-x-3 bottom-3 z-50 max-h-[75vh] overflow-y-auto bg-plum-mist px-5 py-6 shadow-xl lg:absolute lg:inset-x-auto lg:bottom-auto lg:left-1/2 lg:top-[calc(100%_-_490px)] lg:z-0 lg:max-h-none lg:w-[710px] lg:max-w-[calc(100vw-2rem)] lg:-translate-x-[20px] lg:overflow-visible lg:py-[50px] lg:pl-[145px] lg:pr-[60px] lg:shadow-none"
               data-product-panel="{{ slug }}"
               hidden
             >
@@ -220,8 +247,8 @@
                 <thead>
                   <tr class="border-b border-plum/25">
                     <th scope="col" class="py-[7px] font-normal"><span class="sr-only">Nutrient</span></th>
-                    <th scope="col" class="w-[30%] py-[7px] font-normal">Amount Per Serving</th>
-                    <th scope="col" class="w-[20%] py-[7px] text-right font-normal">Daily Value*</th>
+                    <th scope="col" class="w-[34%] whitespace-nowrap py-[7px] font-normal">Amount Per Serving</th>
+                    <th scope="col" class="w-[20%] whitespace-nowrap py-[7px] text-right font-normal">Daily Value*</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -293,6 +320,10 @@
       var tabs = Array.prototype.slice.call(root.querySelectorAll('[data-product-tab]'));
       var dots = Array.prototype.slice.call(root.querySelectorAll('[data-product-dot]'));
       var empty = root.querySelector('[data-products-empty]');
+      var tablist = root.querySelector('[data-product-tablist]');
+      var filterToggle = root.querySelector('[data-product-filter]');
+      var filterLabel = root.querySelector('[data-product-filter-label]');
+      var filterChevron = root.querySelector('[data-product-filter-chevron]');
 
       var normalise = function (value) {
         return (value || '').trim().toLowerCase();
@@ -330,7 +361,16 @@
 
       var activeCategory = initialTab ? initialTab.getAttribute('data-product-tab') : null;
       var openSlug = null;
+      var filterOpen = false;
       var tx = 0;
+
+      // Below lg the tab bar is a dropdown; from lg up it is always on show.
+      var setFilter = function (open) {
+        filterOpen = open;
+        if (tablist) tablist.setAttribute('data-open', open ? 'true' : 'false');
+        if (filterToggle) filterToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (filterChevron) filterChevron.style.transform = open ? 'rotate(180deg)' : '';
+      };
 
       var position = function () {
         var current = openSlug && canFor(openSlug);
@@ -393,6 +433,8 @@
 
         if (empty) empty.classList.toggle('hidden', visible.length > 0);
 
+        if (filterLabel) filterLabel.textContent = activeCategory || '';
+
         tabs.forEach(function (tab) {
           tab.setAttribute(
             'aria-selected',
@@ -442,6 +484,7 @@
         tab.addEventListener('click', function () {
           activeCategory = tab.getAttribute('data-product-tab');
           openSlug = null;
+          setFilter(false);
           render();
         });
       });
@@ -454,8 +497,22 @@
         });
       });
 
+      if (filterToggle) {
+        filterToggle.addEventListener('click', function () {
+          setFilter(!filterOpen);
+        });
+      }
+
+      document.addEventListener('click', function (event) {
+        if (!filterOpen) return;
+        if (tablist.contains(event.target) || filterToggle.contains(event.target)) return;
+        setFilter(false);
+      });
+
       document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && openSlug) close();
+        if (event.key !== 'Escape') return;
+        if (filterOpen) return setFilter(false);
+        if (openSlug) close();
       });
 
       window.addEventListener('resize', function () {

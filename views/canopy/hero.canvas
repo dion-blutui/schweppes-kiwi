@@ -3,65 +3,30 @@
     "title": "Hero",
     "name": "hero",
     "settings": [
-        { "name": "heading", "type": "heading", "label": "Headline", "tab": "Content",
-          "elements": [{ "value": "h1", "label": "Heading 1" }, { "value": "h2", "label": "Heading 2" }],
-          "default": { "value": "New Schweppes Antipodean Kiwi & Lime", "element": "h1" } },
-        { "name": "subheading", "type": "text", "label": "Sub headline", "tab": "Content",
-          "default": "For a burst of Kiwi excitement in your otherwise Meh day." },
         { "name": "image", "type": "file", "label": "Hero image", "accept": "image/*", "tab": "Content",
-          "description": "Full width photograph behind the headline." },
-        { "name": "backdrop", "type": "file", "label": "Backdrop image", "accept": "image/*", "tab": "Content",
-          "description": "Soft out of focus image tinted behind the hero." },
+          "description": "The whole hero as one piece of artwork — headline, sub headline and photography are all part of the image." },
+        { "name": "alt", "type": "text", "label": "Image description", "tab": "Content",
+          "help": "Read out by screen readers and shown if the image fails to load. Repeat whatever wording appears in the artwork.",
+          "default": "New Schweppes Antipodean Kiwi & Lime — for a burst of Kiwi excitement in your otherwise Meh day." },
         { "name": "show_scroll_cue", "type": "checkbox", "label": "Show scroll cue", "tab": "Style", "default": true }
     ]
 }
 {% endcanopy %}
 
 {% canopy template %}
+{#
+  The artwork carries the headline, so it is never cropped or overlaid — the section is
+  simply as tall as the image. Anything that has to sit on top of it, like the scroll
+  cue, is UI rather than content.
+#}
 {% set hero_image = settings.image.path|default(asset('images/hero-kiwi-lime.png')) %}
-{% set hero_backdrop = settings.backdrop.path|default(asset('images/hero-backdrop.png')) %}
 
-<section class="relative isolate overflow-hidden bg-olive pt-60">
+<section class="relative bg-olive">
   <img
-    src="{{ hero_backdrop | image_url({ width: 1600, format: 'webp' }) }}"
-    alt=""
-    aria-hidden="true"
-    class="absolute inset-0 h-full w-full object-cover opacity-20"
+    src="{{ hero_image | image_url({ width: 1920, format: 'webp' }) }}"
+    alt="{{ settings.alt }}"
+    class="block w-full"
   />
-
-  <img
-    src="{{ hero_image | image_url({ width: 1600, format: 'webp' }) }}"
-    alt=""
-    aria-hidden="true"
-    class="absolute inset-x-0 top-0 h-full w-full object-cover lg:h-[77%]"
-  />
-
-  <div
-    class="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/70 to-transparent lg:hidden"
-    aria-hidden="true"
-  ></div>
-
-  <div
-    class="absolute inset-x-0 top-[35%] hidden h-[42%] bg-gradient-to-b from-white to-[#737373] mix-blend-multiply lg:block"
-    aria-hidden="true"
-  ></div>
-
-  <div class="shell relative flex min-h-[520px] flex-col justify-end pb-14 pt-24 lg:min-h-[742px] lg:pb-[88px]">
-    <div class="max-w-[845px]">
-      <{{ settings.heading.element }}
-        class="font-display text-[40px] font-bold uppercase leading-[0.9] tracking-[0.5px] text-off-white sm:text-[52px] lg:text-[68px]"
-      >
-        {{ settings.heading.value }}
-      </{{ settings.heading.element }}>
-
-      {% if settings.subheading %}
-        <p class="mt-[19px] text-[16px] font-semibold leading-tight tracking-[0.5px] text-white lg:text-[20px]">
-          {{ settings.subheading }}
-        </p>
-      {% endif %}
-    </div>
-  </div>
-
 
   {% if settings.show_scroll_cue %}
     <div class="absolute inset-x-0 bottom-5 flex justify-center" aria-hidden="true">

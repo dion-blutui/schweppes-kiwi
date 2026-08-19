@@ -54,7 +54,7 @@
         <p class="mt-[11px] text-[12px] italic leading-relaxed">{{ settings.disclaimer }}</p>
       {% endif %}
 
-      <div class="mt-[31px] overflow-x-auto">
+      <div class="scroll-thin mt-[31px] overflow-x-auto">
         <table class="w-full min-w-[420px] text-left">
           <thead>
             <tr class="text-[16px] font-light leading-none tracking-[0.5px]">

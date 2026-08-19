@@ -18,10 +18,14 @@
             <li>
               <a
                 href="{{ item.href }}"
-                class="text-[12px] font-medium uppercase leading-normal tracking-wide text-ink underline-offset-4 hover:underline"
+                class="group inline-block text-[12px] font-medium uppercase leading-normal tracking-wide text-ink"
                 {% if item.opens_new_tab %}target="_blank" rel="noopener"{% endif %}
               >
                 {{ item.label }}
+                <span
+                  class="mt-[3px] block h-[2px] w-full scale-x-0 bg-ink transition-transform duration-200 group-hover:scale-x-100 group-focus-visible:scale-x-100"
+                  aria-hidden="true"
+                ></span>
               </a>
             </li>
           {% endif %}

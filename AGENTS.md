@@ -102,7 +102,7 @@ library with no template change:
 
 | Block                                      | Settings                                                                                                                    |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `hero`                                     | heading, subheading, image, backdrop, show_scroll_cue                                                                       |
+| `hero`                                     | image, alt, show_scroll_cue — the artwork carries the headline; nothing is overlaid                                          |
 | `product_hero`                             | heading, description (richtext), can, backdrop, badge_text, show_badge, show_scroll_cue                                     |
 | `products`                                 | anchor, source (products collection), categories, write_review, read_reviews, show_share — pack shots and panels come from the collection, not from children |
 | `tasting_notes` → `tasting_notes/note`     | heading → label, lead, body                                                                                                 |
@@ -142,6 +142,9 @@ rating (text, halves allowed), review_count.
 - Product slugs are derived — `product.name|slug` — there is no slug field.
 - A `pack_shot_file` containing `bottle` renders taller than a can. That heuristic is
   the only thing telling the two apart; a `pack_size` field would do it properly.
+- **Crop pack shots to their content before adding them.** The strip bottom-aligns by
+  box, so transparent padding under a pack shot leaves it floating above the others —
+  which is exactly how the 2 L bottles arrived from the reference site.
 - An entry with no pack shot renders a dashed placeholder rather than the wrong can —
   Club Soda, Tonic Water and the sparkling waters are all waiting on artwork.
 - Number fields only accept an integer `step`, which is why `rating` is a text field.
@@ -152,7 +155,8 @@ rating (text, halves allowed), review_count.
 
 Colours: `ink body heritage plum plum-mist warrant silver footer off-white gold gold-ink olive`
 Fonts: `font-sans` (Montserrat), `font-display` (Libre Baskerville)
-Helpers: `.shell` (page gutters, 135px at lg), `.pill-cta`, `.scroll-cue`
+Helpers: `.shell` (page gutters, 135px at lg), `.pill-cta`, `.scroll-cue`, `.scroll-thin`
+(slim on-brand scrollbar for horizontally-scrolling strips)
 
 Build mobile-first: stack below `lg`, match the 1440 comp at `lg` and up.
 

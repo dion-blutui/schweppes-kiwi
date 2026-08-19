@@ -104,7 +104,7 @@ library with no template change:
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | `hero`                                     | heading, subheading, image, backdrop, show_scroll_cue                                                                       |
 | `product_hero`                             | heading, description (richtext), can, backdrop, badge_text, show_badge, show_scroll_cue                                     |
-| `products` → `products/item`               | anchor, categories → name, category, image, link, features, nutrition, disclaimer, ingredients, rating, reviews, show_share |
+| `products`                                 | anchor, source (products collection), categories, write_review, read_reviews, show_share — pack shots and panels come from the collection, not from children |
 | `tasting_notes` → `tasting_notes/note`     | heading → label, lead, body                                                                                                 |
 | `nutrition` → `nutrition/row`              | heading, disclaimer, footnote, image, column\_\* → nutrient, serving, hundred                                               |
 | `image_band`                               | image, alt, height (short/medium/tall)                                                                                      |
@@ -125,9 +125,32 @@ so a page built only from existing blocks needs no content passed anywhere.
 Sections that menu links target (`products`, `recipes`, `heritage`) expose an
 `anchor` setting that becomes the section `id`.
 
+## Collections
+
+| Collection | Drives                                                                     |
+| ---------- | -------------------------------------------------------------------------- |
+| `products` | the `products` showcase block — one entry per can or bottle, 18 seeded across the four categories |
+
+`products` fields: name, category (select — the four showcase tabs), order, pack_shot
+(file), pack_shot_file (filename in `public/images`, used until a pack shot is
+uploaded), availability, caffeine, serving_size, the nutrition panel numbers
+(calories, total_fat(_dv), sodium(_dv), total_carbohydrates(_dv), total_sugars,
+added_sugars(_dv), protein), ingredients, nutrition_footnote, daily_value_note,
+rating (text, halves allowed), review_count.
+
+- **The API stores `0` as `null`**, so every number is rendered `|default(0)`.
+- Product slugs are derived — `product.name|slug` — there is no slug field.
+- A `pack_shot_file` containing `bottle` renders taller than a can. That heuristic is
+  the only thing telling the two apart; a `pack_size` field would do it properly.
+- An entry with no pack shot renders a dashed placeholder rather than the wrong can —
+  Club Soda, Tonic Water and the sparkling waters are all waiting on artwork.
+- Number fields only accept an integer `step`, which is why `rating` is a text field.
+- Collection id `01a01bf6-2482-72aa-a2eb-ef136c231e80`; `create_collection_entry`
+  needs that id, not the `products` handle.
+
 ## Design tokens (`src/styles/global.css`)
 
-Colours: `ink body heritage plum warrant silver footer off-white gold gold-ink olive`
+Colours: `ink body heritage plum plum-mist warrant silver footer off-white gold gold-ink olive`
 Fonts: `font-sans` (Montserrat), `font-display` (Libre Baskerville)
 Helpers: `.shell` (page gutters, 135px at lg), `.pill-cta`, `.scroll-cue`
 

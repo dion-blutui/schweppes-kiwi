@@ -6,28 +6,39 @@
         { "name": "anchor", "type": "text", "label": "Anchor id", "tab": "Style",
           "help": "Used for in-page links, e.g. /#products. Lowercase, no spaces.",
           "default": "products" },
-        { "name": "categories", "type": "list", "label": "Category tabs",
-          "help": "Each tab filters the products below by their Category field.",
+        { "name": "source", "type": "collection", "label": "Products collection", "tab": "Content",
+          "help": "Every entry becomes a pack shot on the strip. Manage the products themselves in Collections.",
+          "default": "products" },
+        { "name": "categories", "type": "list", "label": "Category tabs", "tab": "Content",
+          "help": "Tab order. Each tab shows the products whose Category field matches it.",
           "description": "Leave empty to hide the tab bar and show every product.",
-          "default": ["Ginger Ale", "Sparkling Water Beverages", "Club Soda", "Tonic Water"] }
-    ],
-    "children": {
-        "allow": ["products/item"],
-        "default": [{ "block": "products/item" }]
-    }
+          "default": ["Ginger Ale", "Sparkling Water Beverages", "Club Soda", "Tonic Water"] },
+        { "name": "write_review", "type": "url", "label": "Write a review link", "tab": "Reviews",
+          "default": { "url": "#reviews", "text": "Write a review", "target": "_self" } },
+        { "name": "read_reviews", "type": "url", "label": "Read reviews link", "tab": "Reviews",
+          "default": { "url": "#reviews", "text": "Read reviews", "target": "_self" } },
+        { "name": "show_share", "type": "checkbox", "label": "Show share buttons", "tab": "Reviews", "default": true }
+    ]
 }
 {% endcanopy %}
 
-{% canopy template %}
-{% set product_items = canopy.childList() %}
 
-<section
-  id="{{ settings.anchor|lower|replace({' ': '-'}) }}" class="bg-white py-12 lg:py-[67px]" data-products>
+{% canopy template %}
+{#
+  The showcase is a strip of pack shots driven by the products collection. Each pack shot
+  carries its own detail panel, absolutely positioned to its right and anchored to the
+  strip's baseline — so opening one slides the whole strip until that pack shot sits left
+  of centre with its panel beside it, exactly as the pack shot itself moves.
+#}
+{% set anchor = settings.anchor|default('products')|lower|replace({' ': '-'}) %}
+{% set products = settings.source ? settings.source.entries|sort((a, b) => a.order <=> b.order) : [] %}
+
+<section id="{{ anchor }}" class="bg-white py-12 lg:overflow-x-clip lg:py-[67px]" data-products data-products-anchor="{{ anchor }}">
   {% if settings.categories is not empty %}
     <div class="shell">
       <div class="mx-auto max-w-[950px] overflow-x-auto">
         <div
-          class="flex min-w-max items-center justify-between gap-8 rounded-full bg-heritage px-[25px] py-5 lg:h-16 lg:py-0"
+          class="flex min-w-max items-center justify-between gap-8 rounded-full bg-heritage px-[25px] py-5 lg:h-16 lg:py-0 mb-24"
           role="tablist"
           aria-label="Product categories"
         >
@@ -35,7 +46,7 @@
             <button
               type="button"
               role="tab"
-              class="shrink-0 whitespace-nowrap text-[15px] font-semibold uppercase leading-tight tracking-[0.5px] text-white opacity-70 transition-opacity aria-selected:opacity-100 hover:opacity-100 lg:text-[20px]"
+              class="shrink-0 cursor-pointer whitespace-nowrap text-[15px] font-semibold uppercase leading-tight tracking-[0.5px] text-white opacity-70 transition-opacity aria-selected:opacity-100 hover:opacity-100 lg:text-[20px]"
               data-product-tab="{{ category }}"
               aria-selected="{{ loop.first ? 'true' : 'false' }}"
             >
@@ -47,22 +58,213 @@
     </div>
   {% endif %}
 
-  <div class="shell mt-10 lg:mt-[57px]">
-    <div data-products-track>{{ canopy.children() }}</div>
+  <div class="relative mt-10 lg:mt-[92px]" data-products-stage>
+    {# Below lg the strip scrolls; from lg up it must not clip the panels, so the
+       section handles the horizontal overflow instead. #}
+    <div class="overflow-x-auto pb-4 lg:overflow-visible lg:pb-0" data-products-viewport>
+      <div
+        class="relative flex min-w-max items-end justify-start px-6 transition-transform duration-300 ease-out lg:min-w-0 lg:justify-center lg:px-0 lg:will-change-transform"
+        data-products-track
+      >
+        {% for product in products %}
+          {% set slug = product.name|slug %}
+          {% set shot_name = product.pack_shot_file|default('') %}
+          {% set pack_shot = product.pack_shot|default(shot_name ? asset('images/' ~ shot_name) : null) %}
+          {# 2 L bottles stand taller than cans. The filename carries the format until the
+             pack shots move to the asset library and the collection can say so properly. #}
+          {% set is_bottle = 'bottle' in shot_name %}
+          {% set rating = product.rating|default(0) %}
+          {% set half_units = (rating * 2)|round %}
+          {% set full_stars = (half_units / 2)|round(0, 'floor') %}
+          {% set half_star = half_units % 2 == 1 %}
+          {% set rows = [
+            { label: 'Protein', amount: product.protein|default(0), dv: null },
+            { label: 'Added Sugars', amount: product.added_sugars|default(0), dv: product.added_sugars_dv|default(0) },
+            { label: 'Total Sugars', amount: product.total_sugars|default(0), dv: null },
+            { label: 'Total Carbohydrates', amount: product.total_carbohydrates|default(0), dv: product.total_carbohydrates_dv|default(0) },
+            { label: 'Sodium', amount: product.sodium|default(0), dv: product.sodium_dv|default(0) },
+            { label: 'Total Fat', amount: product.total_fat|default(0), dv: product.total_fat_dv|default(0) },
+            { label: 'Calories', amount: product.calories|default(0), dv: null }
+          ] %}
+
+          <article
+            class="relative shrink-0 px-3 data-[open=true]:z-30 lg:px-5"
+            data-product
+            data-open="false"
+            data-product-slug="{{ slug }}"
+            data-product-category="{{ product.category }}"
+          >
+            <button
+              type="button"
+              class="relative z-10 block cursor-pointer"
+              data-product-open
+              aria-expanded="false"
+              aria-controls="{{ anchor }}-{{ slug }}"
+            >
+              {% if pack_shot %}
+                <img
+                  src="{{ pack_shot | image_url({ width: 700, format: 'webp' }) }}"
+                  alt="{{ product.name }}"
+                  class="w-auto origin-bottom object-contain transition-transform duration-300 ease-out
+                    {% if is_bottle %}h-[230px] lg:h-[440px] lg:data-[open=true]:scale-[1.15]{% else %}h-[190px] lg:h-[350px] lg:data-[open=true]:scale-[1.45]{% endif %}"
+                  data-product-image
+                  data-open="false"
+                  loading="lazy"
+                />
+              {% else %}
+                <span
+                  class="flex h-[190px] w-[110px] origin-bottom items-center justify-center border-2 border-dashed border-silver px-2 text-center text-[11px] uppercase leading-tight text-body transition-transform duration-300 ease-out lg:h-[350px] lg:w-[190px] lg:text-[14px] lg:data-[open=true]:scale-[1.45]"
+                  data-product-image
+                  data-open="false"
+                >
+                  {{ product.name }}
+                </span>
+              {% endif %}
+              <span class="sr-only">Show nutrition for {{ product.name }}</span>
+            </button>
+
+            {# A bottom sheet on small screens; from lg up it sits beside its own pack shot. #}
+            <div
+              id="{{ anchor }}-{{ slug }}"
+              class="fixed inset-x-3 bottom-3 z-50 max-h-[75vh] overflow-y-auto bg-plum-mist px-5 py-6 shadow-xl lg:absolute lg:inset-x-auto lg:bottom-[-110px] lg:left-1/2 lg:top-auto lg:z-0 lg:max-h-none lg:w-[760px] lg:max-w-[calc(100vw-2rem)] lg:-translate-x-[20px] lg:overflow-visible lg:py-[50px] lg:pl-[145px] lg:pr-[60px] lg:shadow-none"
+              data-product-panel="{{ slug }}"
+              hidden
+            >
+              <button
+                type="button"
+                class="absolute right-4 top-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-plum text-plum transition-colors hover:bg-plum hover:text-white lg:right-[30px] lg:top-[30px]"
+                data-product-close
+              >
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+                </svg>
+                <span class="sr-only">Close {{ product.name }}</span>
+              </button>
+
+              <h3 class="pr-10 text-[22px] font-bold uppercase leading-tight text-plum lg:text-[30px]">{{ product.name }}</h3>
+
+              {% if product.availability %}
+                <p class="mt-1 text-[14px] leading-tight text-ink">{{ product.availability }}</p>
+              {% endif %}
+
+              {% if settings.show_share %}
+                <ul class="mt-4 flex items-center gap-5">
+                  {% for share in [
+                    { key: 'twitter', label: 'Share on X', path: 'M18.9 5.6 13.7 11l5.6 7.4h-4.4l-3.4-4.5-3.9 4.5H5.1l5.6-6.4L5.3 5.6h4.5l3 4.1 3.6-4.1h2.5Z' },
+                    { key: 'facebook', label: 'Share on Facebook', path: 'M16.2 6.5h-2c-.6 0-1 .5-1 1.1v1.6h3l-.4 2.9h-2.6V19h-3v-6.9H8.1V9.2h2.1V7.4c0-2.1 1.3-3.4 3.3-3.4h2.7v2.5Z' },
+                    { key: 'email', label: 'Share by email', path: 'M5 7h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Zm.9 1.6 6.1 4 6.1-4H5.9Zm12.5 1.2-6.4 4.2-6.4-4.2v5.6h12.8V9.8Z' }
+                  ] %}
+                    <li>
+                      <a
+                        href="#"
+                        data-share="{{ share.key }}"
+                        data-share-text="{{ product.name }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="flex h-6 w-6 items-center justify-center text-plum transition-opacity hover:opacity-70"
+                      >
+                        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="currentColor" aria-hidden="true">
+                          <path d="{{ share.path }}" />
+                        </svg>
+                        <span class="sr-only">{{ share.label }}</span>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+
+              <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[15px] leading-none text-ink">
+                <span class="flex items-center gap-[2px]" role="img" aria-label="Rated {{ rating }} out of 5">
+                  {% for index in 1..5 %}
+                    <svg viewBox="0 0 20 19" class="h-4 w-4" aria-hidden="true">
+                      <defs>
+                        <linearGradient id="{{ anchor }}-{{ slug }}-star-{{ index }}">
+                          <stop offset="{{ index <= full_stars ? '100%' : (index == full_stars + 1 and half_star ? '50%' : '0%') }}" stop-color="#fdc72e" />
+                          <stop offset="{{ index <= full_stars ? '100%' : (index == full_stars + 1 and half_star ? '50%' : '0%') }}" stop-color="#d8d8d8" />
+                        </linearGradient>
+                      </defs>
+                      <path
+                        d="M10 0l2.36 7.26H20l-6.18 4.49L16.18 19 10 14.51 3.82 19l2.36-7.25L0 7.26h7.64L10 0Z"
+                        fill="url(#{{ anchor }}-{{ slug }}-star-{{ index }})"
+                      />
+                    </svg>
+                  {% endfor %}
+                </span>
+
+                {% if rating %}
+                  <span>{{ rating }}{% if product.review_count %} <span class="text-body">({{ product.review_count }})</span>{% endif %}</span>
+                {% endif %}
+
+                {% if settings.write_review.url %}
+                  <a href="{{ settings.write_review.url }}" target="{{ settings.write_review.target }}" class="underline-offset-4 hover:underline">
+                    {{ settings.write_review.text }}
+                  </a>
+                {% endif %}
+
+                {% if settings.read_reviews.url %}
+                  <a href="{{ settings.read_reviews.url }}" target="{{ settings.read_reviews.target }}" class="underline-offset-4 hover:underline">
+                    {{ settings.read_reviews.text }}
+                  </a>
+                {% endif %}
+              </div>
+
+              {% if product.caffeine %}
+                <p class="mt-5 text-[17px] uppercase leading-snug text-plum">{{ product.caffeine }}</p>
+              {% endif %}
+
+              {% if product.serving_size %}
+                <p class="text-[17px] leading-snug text-plum">Serving Size: {{ product.serving_size }}</p>
+              {% endif %}
+
+              <table class="mt-3 w-full border-collapse text-left text-[15px] leading-none text-ink">
+                <thead>
+                  <tr class="border-b border-plum/25">
+                    <th scope="col" class="py-[7px] font-normal"><span class="sr-only">Nutrient</span></th>
+                    <th scope="col" class="w-[30%] py-[7px] font-normal">Amount Per Serving</th>
+                    <th scope="col" class="w-[20%] py-[7px] text-right font-normal">Daily Value*</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in rows %}
+                    <tr class="border-b border-plum/25">
+                      <th scope="row" class="py-[7px] font-normal">{{ row.label }}</th>
+                      <td class="py-[7px]">{{ row.amount }}</td>
+                      <td class="py-[7px] text-right">{{ row.dv is not null ? row.dv : '' }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+              {% if product.nutrition_footnote %}
+                <p class="mt-4 text-[13px] italic leading-snug text-ink">{{ product.nutrition_footnote }}</p>
+              {% endif %}
+
+              {% if product.daily_value_note %}
+                <p class="text-[13px] italic leading-snug text-ink">{{ product.daily_value_note }}</p>
+              {% endif %}
+
+              {% if product.ingredients %}
+                <p class="mt-2 text-[15px] leading-snug text-ink">Ingredients: {{ product.ingredients }}</p>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
 
     <p class="hidden py-16 text-center text-[18px] text-body" data-products-empty>
       No products in this category yet.
     </p>
   </div>
 
-  {% if product_items|length > 1 %}
-    <div class="mt-8 flex flex-wrap items-center justify-center gap-5 lg:mt-[57px]" data-products-dots>
-      {% for item in product_items %}
+  {% if products|length > 1 %}
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-5 lg:mt-10" data-products-dots>
+      {% for product in products %}
         <button
           type="button"
-          class="h-5 w-5 rounded-full border-2 border-heritage bg-heritage transition-colors aria-[current=true]:bg-white"
+          class="h-5 w-5 cursor-pointer rounded-full border-2 border-plum bg-plum transition-colors aria-[current=true]:bg-white"
           data-product-dot="{{ loop.index0 }}"
-          aria-current="{{ loop.first ? 'true' : 'false' }}"
+          aria-current="false"
         >
           <span class="sr-only">Show product {{ loop.index }}</span>
         </button>
@@ -75,13 +277,19 @@
 {% canopy scripts %}
 <script>
   (function () {
+    // Where the open pack shot lands, measured from the centre of the strip: far enough
+    // left that its panel — which hangs off its right — sits centred on the page.
+    var OPEN_OFFSET = -366;
+
     document.querySelectorAll('[data-products]').forEach(function (root) {
+      var stage = root.querySelector('[data-products-stage]');
+      var viewport = root.querySelector('[data-products-viewport]');
       var track = root.querySelector('[data-products-track]');
       if (!track) return;
 
-      var slides = Array.prototype.filter.call(track.children, function (node) {
-        return node.nodeType === 1;
-      });
+      var anchor = root.getAttribute('data-products-anchor');
+      var cans = Array.prototype.slice.call(root.querySelectorAll('[data-product]'));
+      var panels = Array.prototype.slice.call(root.querySelectorAll('[data-product-panel]'));
       var tabs = Array.prototype.slice.call(root.querySelectorAll('[data-product-tab]'));
       var dots = Array.prototype.slice.call(root.querySelectorAll('[data-product-dot]'));
       var empty = root.querySelector('[data-products-empty]');
@@ -90,11 +298,27 @@
         return (value || '').trim().toLowerCase();
       };
 
+      var desktop = function () {
+        return window.matchMedia('(min-width: 1024px)').matches;
+      };
+
       var matching = function (category) {
-        if (!category) return slides;
-        return slides.filter(function (slide) {
-          return normalise(slide.getAttribute('data-product-category')) === normalise(category);
+        if (!category) return cans;
+        return cans.filter(function (can) {
+          return normalise(can.getAttribute('data-product-category')) === normalise(category);
         });
+      };
+
+      var canFor = function (slug) {
+        return cans.filter(function (can) {
+          return can.getAttribute('data-product-slug') === slug;
+        })[0];
+      };
+
+      var panelFor = function (slug) {
+        return panels.filter(function (panel) {
+          return panel.getAttribute('data-product-panel') === slug;
+        })[0];
       };
 
       // Every category tab stays visible, whether or not it has products yet.
@@ -105,16 +329,67 @@
       var initialTab = populated[0] || tabs[0];
 
       var activeCategory = initialTab ? initialTab.getAttribute('data-product-tab') : null;
-      var activeIndex = 0;
+      var openSlug = null;
+      var tx = 0;
+
+      var position = function () {
+        var current = openSlug && canFor(openSlug);
+
+        if (!desktop()) {
+          track.style.transform = '';
+          tx = 0;
+          if (current) {
+            viewport.scrollTo({
+              left: current.offsetLeft - (viewport.clientWidth - current.offsetWidth) / 2,
+              behavior: 'smooth'
+            });
+          }
+          return;
+        }
+
+        if (!current) {
+          tx = 0;
+          track.style.transform = 'translateX(0px)';
+          return;
+        }
+
+        var viewportRect = viewport.getBoundingClientRect();
+        var trackRect = track.getBoundingClientRect();
+        var trackOrigin = trackRect.left - viewportRect.left - tx;
+        var canCentre = trackOrigin + current.offsetLeft + current.offsetWidth / 2;
+
+        tx = viewportRect.width / 2 + OPEN_OFFSET - canCentre;
+        track.style.transform = 'translateX(' + tx + 'px)';
+      };
+
+      // The open panel hangs below the strip, so the stage has to grow to clear the dots.
+      var resizeStage = function () {
+        var panel = openSlug && panelFor(openSlug);
+
+        if (!panel || !desktop()) {
+          stage.style.minHeight = '';
+          return;
+        }
+
+        stage.style.minHeight =
+          Math.max(0, panel.getBoundingClientRect().bottom - stage.getBoundingClientRect().top) + 'px';
+      };
 
       var render = function () {
         var visible = matching(activeCategory);
-        if (activeIndex >= visible.length) activeIndex = 0;
 
-        slides.forEach(function (slide) {
-          slide.hidden = true;
+        cans.forEach(function (can) {
+          var shown = visible.indexOf(can) !== -1;
+          can.hidden = !shown;
+          var isOpen = shown && can.getAttribute('data-product-slug') === openSlug;
+          can.setAttribute('data-open', isOpen ? 'true' : 'false');
+          can.querySelector('[data-product-image]').setAttribute('data-open', isOpen ? 'true' : 'false');
+          can.querySelector('[data-product-open]').setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
-        if (visible[activeIndex]) visible[activeIndex].hidden = false;
+
+        panels.forEach(function (panel) {
+          panel.hidden = panel.getAttribute('data-product-panel') !== openSlug;
+        });
 
         if (empty) empty.classList.toggle('hidden', visible.length > 0);
 
@@ -127,24 +402,79 @@
 
         dots.forEach(function (dot, index) {
           dot.hidden = index >= visible.length;
-          dot.setAttribute('aria-current', index === activeIndex ? 'true' : 'false');
+          var slug = visible[index] ? visible[index].getAttribute('data-product-slug') : null;
+          dot.setAttribute('aria-current', slug && slug === openSlug ? 'true' : 'false');
         });
+
+        position();
+        resizeStage();
       };
+
+      var open = function (slug, pushUrl) {
+        openSlug = slug;
+        render();
+        // The panel only has a height once it is visible.
+        window.requestAnimationFrame(resizeStage);
+        if (pushUrl !== false) {
+          history.replaceState(null, '', '#' + anchor + '/' + slug);
+        }
+      };
+
+      var close = function () {
+        openSlug = null;
+        render();
+        history.replaceState(null, '', '#' + anchor);
+      };
+
+      cans.forEach(function (can) {
+        can.querySelector('[data-product-open]').addEventListener('click', function () {
+          var slug = can.getAttribute('data-product-slug');
+          if (slug === openSlug) return;
+          open(slug, true);
+        });
+      });
+
+      panels.forEach(function (panel) {
+        panel.querySelector('[data-product-close]').addEventListener('click', close);
+      });
 
       tabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
           activeCategory = tab.getAttribute('data-product-tab');
-          activeIndex = 0;
+          openSlug = null;
           render();
         });
       });
 
       dots.forEach(function (dot, index) {
         dot.addEventListener('click', function () {
-          activeIndex = index;
-          render();
+          var visible = matching(activeCategory);
+          if (!visible[index]) return;
+          open(visible[index].getAttribute('data-product-slug'), true);
         });
       });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && openSlug) close();
+      });
+
+      window.addEventListener('resize', function () {
+        position();
+        resizeStage();
+      });
+
+      // /#products/white-peach-ginger-ale opens that product on load.
+      var deepLink = window.location.hash.replace('#', '').split('/');
+      if (deepLink[0] === anchor && deepLink[1]) {
+        var target = canFor(deepLink[1]);
+        if (target) {
+          activeCategory = target.getAttribute('data-product-category');
+          open(deepLink[1], false);
+          window.requestAnimationFrame(function () {
+            root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        }
+      }
 
       render();
     });

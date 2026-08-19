@@ -11,6 +11,10 @@
         { "name": "can", "type": "file", "label": "Can image", "accept": "image/*", "tab": "Media",
           "description": "Shown three times as an overlapping pack shot on large screens." },
         { "name": "backdrop", "type": "file", "label": "Backdrop image", "accept": "image/*", "tab": "Media" },
+        { "name": "badge_text", "type": "text", "label": "Badge text", "tab": "Content",
+          "description": "Set around the circular badge over the pack shot.",
+          "default": "Zero carbs. Max taste." },
+        { "name": "show_badge", "type": "checkbox", "label": "Show badge", "tab": "Style", "default": true },
         { "name": "show_scroll_cue", "type": "checkbox", "label": "Show scroll cue", "tab": "Style", "default": true }
     ]
 }
@@ -59,6 +63,27 @@
     </div>
   </div>
 
+
+  {# Circular badge that sits over the top-right of the pack shot in the design. #}
+  {% if settings.show_badge and settings.badge_text %}
+    <div class="pointer-events-none absolute inset-x-0 top-0 hidden lg:block">
+      <div class="relative mx-auto h-0 w-full max-w-[1440px]">
+        <svg
+          class="absolute left-[84.7%] top-[182px] w-[9.34%]"
+          viewBox="0 0 100 100"
+          role="img"
+          aria-label="{{ settings.badge_text }}"
+        >
+          <path id="hero-badge-arc" fill="none" d="M50,50 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0" />
+          <text
+            class="fill-white font-sans text-[9.5px] font-semibold uppercase tracking-[1.2px]"
+          >
+            <textPath href="#hero-badge-arc" startOffset="2%">{{ settings.badge_text }}</textPath>
+          </text>
+        </svg>
+      </div>
+    </div>
+  {% endif %}
 
   {% if settings.show_scroll_cue %}
     <div class="absolute inset-x-0 bottom-5 flex justify-center" aria-hidden="true">
